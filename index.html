@@ -1,13 +1,259 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nde Lája Comercial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #fdfdfd;
+      color: #333;
+    }
+    header {
+      background-color: #e91e63;
+      color: white;
+      padding: 1rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    header span {
+      font-size: 0.8rem;
+    }
+    #catalogo {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .producto {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .producto img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      loading: lazy;
+    }
+    .producto .info {
+      padding: 0.75rem;
+    }
+    .producto .info h3 {
+      margin: 0 0 0.3rem;
+      font-size: 1rem;
+    }
+    .producto .info p {
+      margin: 0 0 0.3rem;
+      font-size: 0.85rem;
+    }
+    .producto .info button {
+      background: #e91e63;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    #carrito {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      background: white;
+      border: 2px solid #e91e63;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 280px;
+      width: 90vw;
+    }
+    #carrito ul {
+      list-style: none;
+      padding: 0;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    #carrito li {
+      margin-bottom: 0.3rem;
+      font-size: 0.85rem;
+    }
+    #carrito p {
+      margin: 0.3rem 0;
+      font-size: 0.9rem;
+    }
+    #carrito button {
+      margin-top: 0.5rem;
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    footer {
+      padding: 2rem 1rem;
+      background-color: #f8f8f8;
+      font-size: 0.95rem;
+    }
+    footer > div {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    footer div div {
+      flex: 1;
+      min-width: 240px;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .producto .info h3 {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Nde Lája Comercial</h1>
-  <p>Catálogo listo para probar en GitHub Pages.</p>
+  <header>
+    <h1>Nde Lája Comercial</h1>
+    <span>Tu forma de ser</span>
+  </header>
+  <main id="catalogo"></main>
+  <div id="carrito">
+    <ul id="lista-carrito"></ul>
+    <p><strong>Artículos:</strong> <span id="cantidad">0</span></p>
+    <p><strong>Total:</strong> Gs. <span id="total">0</span></p>
+    <p id="descuento" style="color: green; font-weight: bold; display: none;">¡Descuento mayorista aplicado!</p>
+    <button onclick="enviarPedido()">Enviar pedido por WhatsApp</button>
+  </div>
+  <footer>
+    <div>
+      <div>
+        <p><strong>🚚 Entregamos en puerta</strong></p>
+        <p>Dentro de las 24 a 48 horas hábiles, sin complicaciones.</p>
+      </div>
+      <div>
+        <p><strong>💡 Comprá desde 4 unidades</strong></p>
+        <p>Accedé al precio mayorista con 20% OFF automático.</p>
+      </div>
+      <div>
+        <p><strong>🛍️ Variedad para tu negocio</strong></p>
+        <p>Calzados, ropa, accesorios y más. Pedí desde tu celular o PC.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const productos = [
+      { id: "001", nombre: "Zapatillas Blancas", precio: 50000, imagen: "img/zapatillas-blancas.jpg" },
+      { id: "002", nombre: "Camiseta Gris", precio: 30000, imagen: "img/camiseta-gris.jpg" },
+      { id: "003", nombre: "Bolso de Cuero", precio: 80000, imagen: "img/bolso-cuero.jpg" },
+      { id: "004", nombre: "Lentes de Sol", precio: 40000, imagen: "img/lentes-sol.jpg" }
+    ];
+
+    const carrito = {};
+
+    function renderCatalogo() {
+      const catalogo = document.getElementById("catalogo");
+      productos.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "producto";
+        card.innerHTML = `
+          <img src="${p.imagen}" alt="${p.nombre}" loading="lazy" />
+          <div class="info">
+            <h3>${p.nombre}</h3>
+            <p>Gs. ${p.precio.toLocaleString()}</p>
+            <button onclick="agregarAlCarrito('${p.id}')">Agregar</button>
+          </div>
+        `;
+        catalogo.appendChild(card);
+      });
+    }
+
+    function agregarAlCarrito(id) {
+      if (!carrito[id]) carrito[id] = { ...productos.find(p => p.id === id), cantidad: 0 };
+      carrito[id].cantidad++;
+      actualizarCarrito();
+    }
+
+    function actualizarCarrito() {
+      const lista = document.getElementById("lista-carrito");
+      lista.innerHTML = "";
+      let total = 0;
+      let cantidadTotal = 0;
+
+      for (let id in carrito) {
+        const item = carrito[id];
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        cantidadTotal += item.cantidad;
+
+        const li = document.createElement("li");
+        li.innerHTML = `${item.nombre} x${item.cantidad} <button onclick="agregarAlCarrito('${id}')">+</button> <button onclick="quitarDelCarrito('${id}')">-</button>`;
+        lista.appendChild(li);
+      }
+
+      const descuento = cantidadTotal >= 4 ? 0.2 : 0;
+      const totalFinal = total * (1 - descuento);
+
+      document.getElementById("cantidad").textContent = cantidadTotal;
+      document.getElementById("total").textContent = totalFinal.toLocaleString();
+      document.getElementById("descuento").style.display = descuento ? "block" : "none";
+    }
+
+    function quitarDelCarrito(id) {
+      if (carrito[id]) {
+        carrito[id].cantidad--;
+        if (carrito[id].cantidad <= 0) delete carrito[id];
+        actualizarCarrito();
+      }
+    }
+
+    function enviarPedido() {
+      let mensaje = "Hola, quiero hacer este pedido:%0A";
+      let cantidadTotal = 0;
+      let total = 0;
+
+      for (let id in carrito) {
+        const item = carrito[id];
+        mensaje += `- ${item.nombre} x${item.cantidad}%0A`;
+        cantidadTotal += item.cantidad;
+        total += item.precio * item.cantidad;
+      }
+
+      const descuento = cantidadTotal >= 4 ? 0.2 : 0;
+      const totalFinal = total * (1 - descuento);
+      mensaje += `%0A*Total con descuento:* Gs. ${totalFinal.toLocaleString()}`;
+
+      window.open(`https://wa.me/595XXXXXXXXX?text=${mensaje}`, '_blank');
+    }
+
+    renderCatalogo();
+  </script>
 </body>
 </html>
